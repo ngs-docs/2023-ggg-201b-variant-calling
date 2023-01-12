@@ -1,0 +1,9 @@
+name: env
+channels:
+    - conda-forge
+    - bioconda
+    - defaults
+dependencies:
+    - snakemake-minimal=7.19.1
+    - wget
+    - r-base
