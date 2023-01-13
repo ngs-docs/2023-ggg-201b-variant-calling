@@ -7,3 +7,7 @@ dependencies:
     - snakemake-minimal=7.19.1
     - wget
     - r-base
+    - bcftools
+    - samtools
+    - minimap2
+    - wget
