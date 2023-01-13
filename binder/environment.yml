@@ -4,10 +4,9 @@ channels:
     - bioconda
     - defaults
 dependencies:
-    - snakemake-minimal
-    - wget
-    - r-base
-    - bcftools
-    - samtools
-    - minimap2
-    - wget
+    - snakemake-minimal=7.19.1
+    - r-base=4.2.2
+    - bcftools=1.8
+    - samtools=1.6
+    - minimap2=2.24
+    - curl
