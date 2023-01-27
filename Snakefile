@@ -1,13 +1,18 @@
 rule download_data:
+    output: "SRR2584857_1.fastq.gz"
     shell: """
         curl -JLO https://osf.io/4rdza/download
     """
 
 rule download_genome:
+    output: "ecoli-rel606.fa.gz"
     shell:
         "curl -JLO https://osf.io/8sm92/download"
 
 rule map_reads:
+    input:
+        reads="SRR2584857_1.fastq.gz",
+        ref="ecoli-rel606.fa.gz",
     shell: """
         minimap2 -ax sr ecoli-rel606.fa.gz SRR2584857_1.fastq.gz > SRR2584857_1.x.ecoli-rel606.sam
     """
