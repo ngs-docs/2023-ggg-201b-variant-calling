@@ -1,36 +1,49 @@
 rule download_data:
     output: "SRR2584857_1.fastq.gz"
     shell: """
-        curl -JLO https://osf.io/4rdza/download
+        curl -JLO https://osf.io/4rdza/download -o {output}
     """
 
 rule download_genome:
     output: "ecoli-rel606.fa.gz"
     shell:
-        "curl -JLO https://osf.io/8sm92/download"
+        "curl -JLO https://osf.io/8sm92/download -o {output}"
 
 rule map_reads:
     input:
         reads="SRR2584857_1.fastq.gz",
-        ref="ecoli-rel606.fa.gz",
+        ref="ecoli-rel606.fa.gz"
+    output: "SRR2584857_1.x.ecoli-rel606.sam"
     shell: """
-        minimap2 -ax sr ecoli-rel606.fa.gz SRR2584857_1.fastq.gz > SRR2584857_1.x.ecoli-rel606.sam
+        minimap2 -ax sr {input.ref} {input.reads} > {output}
     """
 
 rule sam_to_bam:
+    input: "SRR2584857_1.x.ecoli-rel606.sam",
+    output: "SRR2584857_1.x.ecoli-rel606.bam",
     shell: """
-        samtools view -b -F 4 SRR2584857_1.x.ecoli-rel606.sam > SRR2584857_1.x.ecoli-rel606.bam
+        samtools view -b -F 4 {input} > {output}
      """
 
 rule sort_bam:
+    input: "SRR2584857_1.x.ecoli-rel606.bam"
+    output: "SRR2584857_1.x.ecoli-rel606.bam.sorted"
     shell: """
-        samtools sort SRR2584857_1.x.ecoli-rel606.bam > SRR2584857_1.x.ecoli-rel606.bam.sorted
+        samtools sort {input} > {output}
     """
 
 rule call_variants:
+    input:
+        ref="ecoli-rel606.fa.gz",
+        bam="SRR2584857_1.x.ecoli-rel606.bam.sorted",
+    output:
+        pileup="SRR2584857_1.x.ecoli-rel606.pileup",
+        ref="ecoli-rel606.fa",
+        bcf="SRR2584857_1.x.ecoli-rel606.bcf",
+        vcf="SRR2584857_1.x.ecoli-rel606.vcf",
     shell: """
-        gunzip -k ecoli-rel606.fa.gz
-        bcftools mpileup -Ou -f ecoli-rel606.fa SRR2584857_1.x.ecoli-rel606.bam.sorted > SRR2584857_1.x.ecoli-rel606.pileup
-        bcftools call -mv -Ob SRR2584857_1.x.ecoli-rel606.pileup -o SRR2584857_1.x.ecoli-rel606.bcf
-        bcftools view SRR2584857_1.x.ecoli-rel606.bcf > SRR2584857_1.x.ecoli-rel606.vcf
+        gunzip -k {input.ref}
+        bcftools mpileup -Ou -f {output.ref} {input.bam} > {output.pileup}
+        bcftools call -mv -Ob {output.pileup} -o {output.bcf}
+        bcftools view {output.bcf} > {output.vcf}
     """
